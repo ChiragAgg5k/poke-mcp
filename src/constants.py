@@ -147,3 +147,5 @@ STATUS_BURN = "burn"
 STATUS_POISON = "poison"
 
 STATUS_EFFECTS = [STATUS_PARALYSIS, STATUS_BURN, STATUS_POISON]
+
+STARTING_POKEMON = ["bulbasaur", "charmander", "squirtle", "eevee", "pikachu"]

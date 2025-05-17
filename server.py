@@ -1,9 +1,15 @@
 """Module for fetching and returning Pokémon information using the PokeAPI."""
+import os
 import random
 from typing import Dict, Any
 from mcp.server.fastmcp import FastMCP
+from dotenv import load_dotenv
 import httpx
-from src.constants import STATUS_PARALYSIS, POKEAPI_BASE_URL
+from appwrite.client import Client
+from appwrite.exception import AppwriteException
+from appwrite.services.databases import Databases
+from appwrite.id import ID
+from src.constants import STATUS_PARALYSIS, POKEAPI_BASE_URL, STARTING_POKEMON
 from src.battle_utils import (
     calculate_damage,
     apply_status_effects,
@@ -12,7 +18,82 @@ from src.battle_utils import (
 )
 from src.pokeapi_client import fetch_pokemon_full_data
 
+load_dotenv()
+
+APPWRITE_ENDPOINT = os.getenv("APPWRITE_ENDPOINT")
+APPWRITE_PROJECT_ID = os.getenv("APPWRITE_PROJECT_ID")
+
+appwrite_client = (
+    Client().set_endpoint(APPWRITE_ENDPOINT).set_project(APPWRITE_PROJECT_ID)
+)
+databases = Databases(appwrite_client)
+
 mcp = FastMCP("poke-mcp")
+
+
+@mcp.tool()
+async def initialize_profile(
+    player_name: str, gender: str, starting_pokemon: str, player_id: str | None = None
+) -> Dict[str, Any]:
+    """
+    Initialize a player's profile.
+    Args:
+        player_name (str): The name of the player. Max 20 characters.
+        gender (str): The gender of the player. Must be one of the following: `male`, `female`
+        starting_pokemon (str): The name of the starting pokemon. Must be one of the following: `bulbasaur`, `charmander`, `squirtle`, `eevee`, `pikachu`
+        player_id (str | None): The id of the player (optional)
+    Returns:
+        A dictionary containing the player's profile.
+    """
+    if not APPWRITE_ENDPOINT or not APPWRITE_PROJECT_ID:
+        return {"error": "Appwrite endpoint or project id not set"}
+
+    if not player_name:
+        return {"error": "Player name is required"}
+
+    if gender not in ["male", "female"]:
+        return {"error": "Invalid gender"}
+
+    if starting_pokemon not in STARTING_POKEMON:
+        return {"error": f"Invalid starting pokemon: {starting_pokemon}"}
+
+    pokemon_data = None
+    async with httpx.AsyncClient() as httpx_client:
+        pokemon_data = await fetch_pokemon_full_data(httpx_client, starting_pokemon)
+    if not pokemon_data:
+        return {"error": f"Could not fetch data for {starting_pokemon}."}
+
+    try:
+        profile = databases.create_document(
+            database_id="main",
+            collection_id="players",
+            document_id=player_id or ID.unique(),
+            data={
+                "player_name": player_name,
+                "gender": gender,
+                "starting_pokemon": starting_pokemon,
+                "current_location": "start",
+            },
+        )
+
+        databases.create_document(
+            database_id="main",
+            collection_id="pokemons",
+            document_id=ID.unique(),
+            data={
+                "pokemon_name": starting_pokemon,
+                "hp": pokemon_data["base_stats"]["hp"],
+                "attack": pokemon_data["base_stats"]["attack"],
+                "defense": pokemon_data["base_stats"]["defense"],
+                "speed": pokemon_data["base_stats"]["speed"],
+                "level": 1,
+                "experience": 0,
+                "owner_id": profile["$id"],
+            },
+        )
+        return {"success": True, "profile": profile}
+    except AppwriteException as e:
+        return {"error": f"Error initializing profile: {e}"}
 
 
 @mcp.tool()
@@ -29,10 +110,10 @@ async def get_pokemon_info(pokemon_name: str) -> Dict[str, Any]:
         A dictionary containing the Pokémon's information
     """
     try:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient() as httpx_client:
             # Fetch main Pokémon data
             pokemon_url = f"{POKEAPI_BASE_URL}/pokemon/{pokemon_name.lower()}"
-            pokemon_response = await client.get(pokemon_url)
+            pokemon_response = await httpx_client.get(pokemon_url)
             pokemon_response.raise_for_status()
             pokemon_data = pokemon_response.json()
 
@@ -50,7 +131,7 @@ async def get_pokemon_info(pokemon_name: str) -> Dict[str, Any]:
             for ability_entry in pokemon_data["abilities"]:
                 ability_name = ability_entry["ability"]["name"]
                 ability_url = ability_entry["ability"]["url"]
-                ability_resp = await client.get(ability_url)
+                ability_resp = await httpx_client.get(ability_url)
                 ability_resp.raise_for_status()
                 ability_data = ability_resp.json()
                 effect_entries = ability_data.get("effect_entries", [])
@@ -69,7 +150,7 @@ async def get_pokemon_info(pokemon_name: str) -> Dict[str, Any]:
             for move_entry in pokemon_data["moves"][:10]:
                 move_name = move_entry["move"]["name"]
                 move_url = move_entry["move"]["url"]
-                move_resp = await client.get(move_url)
+                move_resp = await httpx_client.get(move_url)
                 move_resp.raise_for_status()
                 move_data = move_resp.json()
                 effect_entries = move_data.get("effect_entries", [])
@@ -85,11 +166,11 @@ async def get_pokemon_info(pokemon_name: str) -> Dict[str, Any]:
 
             # Evolution information
             species_url = pokemon_data["species"]["url"]
-            species_resp = await client.get(species_url)
+            species_resp = await httpx_client.get(species_url)
             species_resp.raise_for_status()
             species_data = species_resp.json()
             evolution_chain_url = species_data["evolution_chain"]["url"]
-            evolution_resp = await client.get(evolution_chain_url)
+            evolution_resp = await httpx_client.get(evolution_chain_url)
             evolution_resp.raise_for_status()
             evolution_data = evolution_resp.json()
 
@@ -120,12 +201,12 @@ async def simulate_battle(pokemon1: str, pokemon2: str) -> Dict[str, Any]:
     Returns:
         Battle log and winner
     """
-    async with httpx.AsyncClient() as client:
-        poke1 = await fetch_pokemon_full_data(client, pokemon1)
+    async with httpx.AsyncClient() as httpx_client:
+        poke1 = await fetch_pokemon_full_data(httpx_client, pokemon1)
 
         if not poke1:
             return {"error": f"Could not fetch data for {pokemon1}."}
-        poke2 = await fetch_pokemon_full_data(client, pokemon2)
+        poke2 = await fetch_pokemon_full_data(httpx_client, pokemon2)
         if not poke2:
             return {"error": f"Could not fetch data for {pokemon2}."}
 
