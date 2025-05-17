@@ -25,10 +25,34 @@ PokeMCP is an MCP (Modular Command Platform) server that provides detailed Poké
    ```
 
 ## Usage
+
+### Development Server
 Run the server using uv (ensure you have the required MCP infrastructure):
 ```bash
 uv run mcp dev server.py
 ```
+
+### Connecting with Claude
+Run the following command to connect with Claude:
+```bash
+uv run mcp install server.py
+```
+
+Result should look like this:
+```bash
+Added server 'poke-mcp' to Claude config   
+Successfully installed poke-mcp in Claude app 
+```
+
+Now you can use the `poke-mcp` MCP tools in Claude:
+
+*Get Pokemon Info*
+<img src="assets/claude_get_pokemon_info.png" alt="Claude with PokeMCP" width="500">
+
+*Simulate Battle*
+<img src="assets/claude_simulate_battle.png" alt="Claude with PokeMCP" width="500">
+
+Learn how to connect the server with other MCP clients like Cursor [here](https://docs.cursor.com/context/model-context-protocol).
 
 ## API
 
@@ -65,9 +89,6 @@ A dictionary with the following structure:
 #### Error Handling
 If the Pokémon is not found or there is a network error, the response will include an `error` key with a descriptive message.
 
-### Visual Example: Pokémon Info
-![Pokémon Info Example](assets/pokemon_info.png)
-
 ### Tool: `simulate_battle`
 Simulates a Pokémon battle between two Pokémon using core mechanics (stats, type, and status effects).
 
@@ -97,9 +118,6 @@ A dictionary with the following structure:
 
 #### Error Handling
 If either Pokémon is not found or there is a network error, the response will include an `error` key with a descriptive message.
-
-#### Visual Example: Simulate Battle
-![Simulate Battle Example](assets/simulate_battle.png)
 
 ## License
 This project uses the [PokeAPI](https://pokeapi.co/) and is intended for educational and non-commercial use.
