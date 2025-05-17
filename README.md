@@ -80,18 +80,18 @@ A dictionary with the following structure:
 ```json
 {
   "pokemon1": "pikachu",
-  "pokemon2": "bulbasaur",
+  "pokemon2": "charizard",
+  "initial_hp": {
+    "pikachu": 35,
+    "charizard": 78
+  },
   "battle_log": [
     "Turn 1:",
-    "pikachu uses thunder-shock and deals 12 damage!",
-    "bulbasaur is now paralysis!",
-    "bulbasaur: ",
-    "bulbasaur uses tackle and deals 10 damage!",
-    "pikachu: ",
-    ...
-    "Winner: pikachu!"
+    "charizard uses mega-punch and deals 75 damage! (pikachu HP: 0)",
+    "pikachu fainted!",
+    "Winner: charizard!"
   ],
-  "winner": "pikachu"
+  "winner": "charizard"
 }
 ```
 
