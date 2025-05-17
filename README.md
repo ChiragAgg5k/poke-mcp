@@ -9,22 +9,19 @@ PokeMCP is an MCP (Modular Command Platform) server that provides detailed Poké
 - Handles errors gracefully and returns informative error messages
 
 ## Requirements
-- Python 3.8+
+- Python 3.11.4+
 - [httpx](https://www.python-httpx.org/) (for async HTTP requests)
 - [mcp.server.fastmcp](https://github.com/microsoft/mcp) (for MCP server framework)
 
 ## Installation
 1. Clone this repository:
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/ChiragAgg5k/poke-mcp.git
    cd poke-mcp
    ```
 2. Install dependencies using [uv](https://github.com/astral-sh/uv):
    ```bash
-   uv pip install -r requirements.txt
-   # Or install httpx and mcp.server.fastmcp individually if requirements.txt is not present
-   uv pip install httpx
-   # And install mcp.server.fastmcp as required by your environment
+   uv sync
    ```
 
 ## Usage
