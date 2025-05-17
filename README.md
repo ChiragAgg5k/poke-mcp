@@ -47,9 +47,11 @@ Successfully installed poke-mcp in Claude app
 Now you can use the `poke-mcp` MCP tools in Claude:
 
 *Get Pokemon Info*
+
 <img src="assets/claude_get_pokemon_info.png" alt="Claude with PokeMCP" width="500">
 
 *Simulate Battle*
+
 <img src="assets/claude_simulate_battle.png" alt="Claude with PokeMCP" width="500">
 
 Learn how to connect the server with other MCP clients like Cursor [here](https://docs.cursor.com/context/model-context-protocol).
