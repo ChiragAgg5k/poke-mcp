@@ -68,13 +68,41 @@ A dictionary with the following structure:
 #### Error Handling
 If the Pokémon is not found or there is a network error, the response will include an `error` key with a descriptive message.
 
-## Example
-```python
-from poke_mcp_client import get_pokemon_info
+### Visual Example: Pokémon Info
+![Pokémon Info Example](assets/pokemon_info.png)
 
-info = await get_pokemon_info("bulbasaur")
-print(info)
+### Tool: `simulate_battle`
+Simulates a Pokémon battle between two Pokémon using core mechanics (stats, type, and status effects).
+
+#### Arguments
+- `pokemon1` (str): Name of the first Pokémon (case-insensitive)
+- `pokemon2` (str): Name of the second Pokémon (case-insensitive)
+
+#### Returns
+A dictionary with the following structure:
+```json
+{
+  "pokemon1": "pikachu",
+  "pokemon2": "bulbasaur",
+  "battle_log": [
+    "Turn 1:",
+    "pikachu uses thunder-shock and deals 12 damage!",
+    "bulbasaur is now paralysis!",
+    "bulbasaur: ",
+    "bulbasaur uses tackle and deals 10 damage!",
+    "pikachu: ",
+    ...
+    "Winner: pikachu!"
+  ],
+  "winner": "pikachu"
+}
 ```
+
+#### Error Handling
+If either Pokémon is not found or there is a network error, the response will include an `error` key with a descriptive message.
+
+#### Visual Example: Simulate Battle
+![Simulate Battle Example](assets/simulate-_battle.png)
 
 ## License
 This project uses the [PokeAPI](https://pokeapi.co/) and is intended for educational and non-commercial use.
