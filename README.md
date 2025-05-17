@@ -19,16 +19,18 @@ PokeMCP is an MCP (Modular Command Platform) server that provides detailed Poké
    git clone <your-repo-url>
    cd poke-mcp
    ```
-2. Install dependencies:
+2. Install dependencies using [uv](https://github.com/astral-sh/uv):
    ```bash
-   pip install httpx
+   uv pip install -r requirements.txt
+   # Or install httpx and mcp.server.fastmcp individually if requirements.txt is not present
+   uv pip install httpx
    # And install mcp.server.fastmcp as required by your environment
    ```
 
 ## Usage
-Run the server (ensure you have the required MCP infrastructure):
+Run the server using uv (ensure you have the required MCP infrastructure):
 ```bash
-python server.py
+uv run mcp dev server.py
 ```
 
 ## API
