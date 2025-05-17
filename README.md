@@ -99,7 +99,7 @@ A dictionary with the following structure:
 If either Pokémon is not found or there is a network error, the response will include an `error` key with a descriptive message.
 
 #### Visual Example: Simulate Battle
-![Simulate Battle Example](assets/simulate-_battle.png)
+![Simulate Battle Example](assets/simulate_battle.png)
 
 ## License
 This project uses the [PokeAPI](https://pokeapi.co/) and is intended for educational and non-commercial use.
